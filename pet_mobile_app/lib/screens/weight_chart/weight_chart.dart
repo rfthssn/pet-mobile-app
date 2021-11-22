@@ -68,7 +68,7 @@ class _WeightGraphState extends State<WeightGraph> {
                       ),
                       SizedBox(height: 20),
                       Expanded(
-                        child: ShowChart(data: weights),
+                        child: DrawChart(data: weights),
                       ),
                       Align(
                           alignment: Alignment.centerRight,
@@ -104,6 +104,10 @@ class _WeightGraphState extends State<WeightGraph> {
               Weight(weightInKg: data['weight_in_kg'], date: data['date']);
           weights.add(weight);
         }
+
+        weights.sort((a,b){
+          return DateTime.parse(a.date).compareTo(DateTime.parse(b.date));
+        });
       }
     } else {
       setState(() {

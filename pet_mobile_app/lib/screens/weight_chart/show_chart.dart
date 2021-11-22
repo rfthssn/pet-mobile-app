@@ -1,40 +1,43 @@
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:pet_mobile_app/models/weight_model.dart';
+import 'line_painter.dart';
 
-class ShowChart extends StatelessWidget {
+class DrawChart extends StatefulWidget {
   final List<Weight> data;
-  ShowChart({required this.data});
+  const DrawChart({Key? key, required this.data}) : super(key: key);
 
-  static List<charts.Series<Weight, DateTime>> _createSampleData(dataAPI) {
-    return [
-      new charts.Series<Weight, DateTime>(
-        id: 'timeSeriesChart',
-        colorFn: (Weight weight, _) =>
-        charts.MaterialPalette.green.shadeDefault,
-        domainFn: (Weight weight, _) => DateTime.parse(weight.date) ,
-        measureFn: (Weight weight, _) => weight.weightInKg,
-        data: dataAPI,
-      ),
-    ];
+  @override
+  _DrawChartState createState() => _DrawChartState();
+}
+
+class _DrawChartState extends State<DrawChart> {
+
+  double min = double.maxFinite;
+  double max = -double.maxFinite;
+  double range = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      widget.data.forEach((d) {
+        min = d.weightInKg.toDouble() < min ? d.weightInKg.toDouble() : min;
+        max = d.weightInKg.toDouble() > max ? d.weightInKg.toDouble() : max;
+      });
+      range = max - min;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Container(
-        width: 1000,
-        child: charts.TimeSeriesChart(
-          _createSampleData(data),
-          defaultRenderer:
-          new charts.LineRendererConfig(includePoints: true),
-          animate: true,
-          behaviors: [
-            charts.SlidingViewport(),
-          ],
-        ),
-      )
+        scrollDirection: Axis.horizontal,
+        child: Container(
+          width: 1000,
+          child: CustomPaint(
+            foregroundPainter: LinePainter(widget.data, min, max, range),
+          ),
+        )
 
     );
   }
